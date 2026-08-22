@@ -1,6 +1,6 @@
 from datetime import datetime, time
 
-from powerrules.conditions.datetime import DateTimeCondition, TimeRange
+from powerrules.conditions.datetime import DateTimeCondition, TimeRange, Weekday
 
 
 # Dummy clock which returns a fixed time for testing purposes
@@ -114,7 +114,7 @@ def test_time_range_with_equal_start_and_end_matches_no_time() -> None:
 #########################
 
 
-def test_datetime_condition_matches_current_time() -> None:
+def test_datetime_condition_matches_current_time_in_range() -> None:
     clock_provider = Dummy_ClockProvider(
         datetime(2026, 8, 21, 23, 30),
     )
@@ -130,7 +130,7 @@ def test_datetime_condition_matches_current_time() -> None:
     assert condition.evaluate() is True
 
 
-def test_datetime_condition_does_not_match_current_time() -> None:
+def test_datetime_condition_does_not_match_current_time_outside_range() -> None:
     clock_provider = Dummy_ClockProvider(
         datetime(2026, 8, 21, 12, 0),
     )
@@ -141,6 +141,63 @@ def test_datetime_condition_does_not_match_current_time() -> None:
             end=time(6, 0),
         ),
         clock_provider=clock_provider,
+    )
+
+    assert condition.evaluate() is False
+
+
+def test_datetime_condition_matches_configured_weekday() -> None:
+    clock_provider = Dummy_ClockProvider(datetime(2026, 8, 21, 12, 0))
+
+    condition = DateTimeCondition(
+        clock_provider=clock_provider,
+        weekdays=frozenset({Weekday.FRIDAY}),
+    )
+
+    assert condition.evaluate() is True
+
+
+def test_datetime_condition_does_not_match_unconfigured_weekday() -> None:
+    clock_provider = Dummy_ClockProvider(datetime(2026, 8, 21, 12, 0))
+
+    condition = DateTimeCondition(
+        clock_provider=clock_provider,
+        weekdays=frozenset({Weekday.MONDAY}),
+    )
+
+    assert condition.evaluate() is False
+
+
+def test_datetime_condition_matches_one_of_multiple_weekdays() -> None:
+    clock_provider = Dummy_ClockProvider(datetime(2026, 8, 21, 12, 0))
+
+    condition = DateTimeCondition(
+        clock_provider=clock_provider,
+        weekdays=frozenset(
+            {
+                Weekday.MONDAY,
+                Weekday.FRIDAY,
+                Weekday.SUNDAY,
+            }
+        ),
+    )
+
+    assert condition.evaluate() is True
+
+
+def test_datetime_condition_does_not_match_when_current_weekday_is_not_configured() -> (
+    None
+):
+    clock_provider = Dummy_ClockProvider(datetime(2026, 8, 21, 12, 0))
+
+    condition = DateTimeCondition(
+        clock_provider=clock_provider,
+        weekdays=frozenset(
+            {
+                Weekday.MONDAY,
+                Weekday.TUESDAY,
+            }
+        ),
     )
 
     assert condition.evaluate() is False

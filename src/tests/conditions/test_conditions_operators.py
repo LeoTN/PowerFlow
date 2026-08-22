@@ -1,6 +1,6 @@
 import pytest
 
-from powerrules.conditions.operators import AndCondition, OrCondition
+from powerrules.conditions.operators import AndCondition, NotCondition, OrCondition
 from powerrules.engine.exceptions import ConditionEvaluationError
 
 
@@ -27,6 +27,24 @@ class Dummy_TrackingCondition:
 class Dummy_FailingCondition:
     def evaluate(self) -> bool:
         raise ConditionEvaluationError("Test condition failed")
+
+
+def test_nested_conditions_are_evaluated_correctly() -> None:
+    condition = AndCondition(
+        conditions=(
+            Dummy_Condition(True),
+            NotCondition(
+                condition=OrCondition(
+                    conditions=(
+                        Dummy_Condition(False),
+                        Dummy_Condition(False),
+                    )
+                )
+            ),
+        )
+    )
+
+    assert condition.evaluate() is True
 
 
 ####################
@@ -132,4 +150,37 @@ def test_or_condition_propagates_condition_evaluation_error() -> None:
     condition = OrCondition(conditions=(Dummy_FailingCondition(),))
 
     with pytest.raises(ConditionEvaluationError):
+        condition.evaluate()
+
+
+####################
+# NotCondition tests
+####################
+
+
+def test_not_condition_matches_when_child_does_not_match() -> None:
+    condition = NotCondition(
+        condition=Dummy_Condition(False),
+    )
+
+    assert condition.evaluate() is True
+
+
+def test_not_condition_does_not_match_when_child_matches() -> None:
+    condition = NotCondition(
+        condition=Dummy_Condition(True),
+    )
+
+    assert condition.evaluate() is False
+
+
+def test_not_condition_propagates_condition_evaluation_error() -> None:
+    condition = NotCondition(
+        condition=Dummy_FailingCondition(),
+    )
+
+    with pytest.raises(
+        ConditionEvaluationError,
+        match="Test condition failed",
+    ):
         condition.evaluate()

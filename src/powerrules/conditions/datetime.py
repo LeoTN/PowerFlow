@@ -1,7 +1,20 @@
 from dataclasses import dataclass
 from datetime import time
+from enum import StrEnum
 
 from powerrules.providers.clock import ClockProvider
+
+
+class Weekday(StrEnum):
+    """Represent all weekdays."""
+
+    MONDAY = "Monday"
+    TUESDAY = "Tuesday"
+    WEDNESDAY = "Wednesday"
+    THURSDAY = "Thursday"
+    FRIDAY = "Friday"
+    SATURDAY = "Saturday"
+    SUNDAY = "Sunday"
 
 
 @dataclass(frozen=True)
@@ -37,19 +50,37 @@ class TimeRange:
 class DateTimeCondition:
     def __init__(
         self,
-        time_range: TimeRange,
         clock_provider: ClockProvider,
+        *,
+        time_range: TimeRange | None = None,
+        weekdays: frozenset[Weekday] | None = None,
     ):
-        self.time_range = time_range
         self.clock_provider = clock_provider
+        self.time_range = time_range
+        self.weekdays = weekdays
 
     def evaluate(self) -> bool:
-        """Evaluate whether the current time is within the configured range.
+        """Evaluate the configured date and time condition.
 
         Returns:
-            True if the current time is within the configured range,
+            True if the current date and time matches the condition,
             otherwise False.
         """
-        current_time = self.clock_provider.now().time()
+        current_datetime = self.clock_provider.now()
 
-        return self.time_range.contains(current_time)
+        if self.time_range is not None:
+            return self.time_range.contains(current_datetime.time())
+
+        if self.weekdays is not None:
+            current_weekday = (
+                Weekday.MONDAY,
+                Weekday.TUESDAY,
+                Weekday.WEDNESDAY,
+                Weekday.THURSDAY,
+                Weekday.FRIDAY,
+                Weekday.SATURDAY,
+                Weekday.SUNDAY,
+            )[current_datetime.weekday()]
+            return current_weekday in self.weekdays
+
+        return False

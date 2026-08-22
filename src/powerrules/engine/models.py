@@ -15,6 +15,13 @@ class Rule:
 
 
 @dataclass(frozen=True)
+class RuleSet:
+    """Represent an ordered set of PowerRules rules."""
+
+    rules: tuple[Rule, ...]
+
+
+@dataclass(frozen=True)
 class RuleEvaluationResult:
     """Represent the result of evaluating the rule set."""
 
