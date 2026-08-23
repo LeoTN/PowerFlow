@@ -77,9 +77,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Install packaging
         run: python3 -m pip install packaging --upgrade
@@ -122,9 +122,9 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Install Poetry
         uses: abatilo/actions-poetry@v4
@@ -150,7 +150,7 @@ jobs:
           poetry publish --repository pypirepository --username __token__ --password ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
@@ -170,9 +170,9 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Install Poetry
         uses: abatilo/actions-poetry@v4
@@ -197,7 +197,7 @@ jobs:
           if git diff --cached --quiet; then
               echo "[INFO] No version change detected"
           else
-              git commit -m "chore: bump version to $VERSION"
+              git commit -m "bump version to $VERSION"
               git push origin "HEAD:$BRANCH_NAME"
           fi
 
@@ -263,7 +263,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
