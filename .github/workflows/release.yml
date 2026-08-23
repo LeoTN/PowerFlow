@@ -129,7 +129,7 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v4
         with:
-          poetry-version: "2.2.1"
+          poetry-version: "2.4.1"
 
       - name: Set project version with Poetry
         run: |
@@ -177,7 +177,7 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v4
         with:
-          poetry-version: "2.2.1"
+          poetry-version: "2.4.1"
 
       - name: Set project version with Poetry
         run: |
