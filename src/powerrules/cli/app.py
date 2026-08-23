@@ -4,6 +4,7 @@ from pathlib import Path
 import typer
 
 from powerrules.application.runtime import PowerRulesRuntime
+from powerrules.cli.errors import cli_command
 from powerrules.config.loader import ConfigurationLoader
 
 # Main application
@@ -44,6 +45,7 @@ def main(
 
 
 @policy_app.command("validate")
+@cli_command
 def validate(
     policy: Path = typer.Option(
         Path("powerrules.yaml"),
@@ -59,6 +61,7 @@ def validate(
 
 
 @policy_app.command("show")
+@cli_command
 def show(
     policy: Path = typer.Option(
         Path("powerrules.yaml"),
@@ -76,6 +79,7 @@ def show(
 
 
 @policy_app.command("run")
+@cli_command
 def run(
     once: bool = typer.Option(
         False,
