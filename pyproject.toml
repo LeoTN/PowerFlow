@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "powerrules"
-version = "0.1.0"
+version = "0.1.0b0"
 description = "A rule-based computer power state management tool"
 authors = ["LeoTN"]
 readme = "README.md"
