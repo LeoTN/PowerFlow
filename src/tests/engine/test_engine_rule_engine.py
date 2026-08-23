@@ -255,3 +255,51 @@ def test_rule_engine_stops_after_action_execution_error() -> None:
 
     assert second_condition.evaluation_count == 0
     assert second_action.execution_count == 0
+
+
+def test_rule_engine_find_match_returns_matching_rule() -> None:
+    condition = Dummy_Condition(True)
+    action = Dummy_Action()
+
+    rule = Rule(
+        name="Test rule",
+        condition=condition,
+        action=action,
+    )
+
+    matched_rule = RuleEngine((rule,)).find_match()
+
+    assert matched_rule is rule
+    assert condition.evaluation_count == 1
+    assert action.execution_count == 0
+
+
+def test_rule_engine_find_match_returns_none_when_no_rule_matches() -> None:
+    rule = Rule(
+        name="Test rule",
+        condition=Dummy_Condition(False),
+        action=Dummy_Action(),
+    )
+
+    matched_rule = RuleEngine((rule,)).find_match()
+
+    assert matched_rule is None
+
+
+def test_rule_engine_find_match_returns_first_matching_rule() -> None:
+    first_rule = Rule(
+        name="First rule",
+        condition=Dummy_Condition(True),
+        action=Dummy_Action(),
+    )
+
+    second_rule = Rule(
+        name="Second rule",
+        condition=Dummy_Condition(True),
+        action=Dummy_Action(),
+    )
+
+    matched_rule = RuleEngine((first_rule, second_rule)).find_match()
+
+    assert matched_rule is first_rule
+    assert second_rule.condition.evaluation_count == 0  # type: ignore (a "real" condition does not have this attribute, but the dummy condition does)

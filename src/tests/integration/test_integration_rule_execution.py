@@ -65,7 +65,6 @@ rules:
         encoding="utf-8",
     )
 
-    # REMOVE
     clock_provider = Dummy_ClockProvider(datetime(2026, 8, 22, 1, 30))
     process_provider = Dummy_ProcessProvider(is_running=False)
     power_provider = Dummy_PowerProvider()

@@ -1,0 +1,110 @@
+from importlib.metadata import version
+from pathlib import Path
+
+import typer
+
+from powerrules.application.runtime import PowerRulesRuntime
+from powerrules.config.loader import ConfigurationLoader
+
+# Main application
+app = typer.Typer(
+    name="pwru",
+    help="A rule-based computer power state management tool.",
+    no_args_is_help=True,
+)
+
+# Policy subcommand
+policy_app = typer.Typer(
+    name="policy",
+    help="Manage PowerRules policies.",
+    no_args_is_help=True,
+)
+
+app.add_typer(policy_app, name="policy")
+
+
+def version_callback(value: bool) -> None:
+    """Display the installed PowerRules version."""
+    if value:
+        typer.echo(f"PowerRules {version('powerrules')}")
+        raise typer.Exit()
+
+
+@app.callback()
+def main(
+    version: bool = typer.Option(
+        False,
+        "--version",
+        help="Display the installed PowerRules version.",
+        callback=version_callback,
+        is_eager=True,
+    ),
+) -> None:
+    """A rule-based computer power state management tool."""
+
+
+@policy_app.command("validate")
+def validate(
+    policy: Path = typer.Option(
+        Path("powerrules.yaml"),
+        "--policy",
+        "-p",
+        help="Path to the PowerRules policy file.",
+    ),
+) -> None:
+    """Validate a PowerRules policy file."""
+    ConfigurationLoader().load(policy)
+
+    typer.echo("[INFO] Policy is valid")
+
+
+@policy_app.command("show")
+def show(
+    policy: Path = typer.Option(
+        Path("powerrules.yaml"),
+        "--policy",
+        "-p",
+        help="Path to the PowerRules policy file.",
+    ),
+) -> None:
+    """Display the configured rules of a PowerRules policy."""
+    policy_configuration = ConfigurationLoader().load(policy)
+
+    for index, rule in enumerate(policy_configuration.rules, start=1):
+        status = "enabled" if rule.enabled else "disabled"
+        typer.echo(f"{index}. {rule.name} [{status}]")
+
+
+@policy_app.command("run")
+def run(
+    once: bool = typer.Option(
+        False,
+        "--once",
+        help="Evaluate the policy once and then exit.",
+    ),
+    stop_on_match: bool = typer.Option(
+        False,
+        "--stop-on-match",
+        help="Stop the continuous evaluation after the first rule match.",
+    ),
+    policy: Path = typer.Option(
+        Path("powerrules.yaml"),
+        "--policy",
+        "-p",
+        help="Path to the PowerRules policy file.",
+    ),
+) -> None:
+    """Evaluate a PowerRules policy continuously or once."""
+    runtime = PowerRulesRuntime()
+
+    if once:
+        result = runtime.run_once(configuration_path=policy)
+
+        if result.matched_rule is None:
+            typer.echo("[INFO] No rule matched")
+        else:
+            typer.echo(f"[INFO] Rule '{result.matched_rule.name}' matched")
+
+        return
+
+    runtime.run_continuously(configuration_path=policy, stop_on_match=stop_on_match)

@@ -1,5 +1,5 @@
 from powerrules.engine.exceptions import ConditionEvaluationError
-from powerrules.providers.processes import ProcessProvider
+from powerrules.providers.process import ProcessProvider
 
 
 class ProcessCondition:

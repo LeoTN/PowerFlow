@@ -21,7 +21,7 @@ from powerrules.engine.exceptions import ConfigurationError
 from powerrules.engine.models import Rule, RuleSet
 from powerrules.providers.clock import ClockProvider
 from powerrules.providers.power import PowerProvider
-from powerrules.providers.processes import ProcessProvider
+from powerrules.providers.process import ProcessProvider
 
 
 class ConfigurationBuilder:

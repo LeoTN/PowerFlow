@@ -13,7 +13,7 @@ def test_configuration_loader_loads_valid_configuration(tmp_path: Path) -> None:
     configuration_file.write_text(
         """
 rules:
-  - name: "Shutdown after backup"
+  - name: "Shutdown after backup test rule"
     conditions:
       process:
         name: "backup.exe"
@@ -27,21 +27,29 @@ rules:
     configuration = ConfigurationLoader().load(configuration_file)
 
     assert len(configuration.rules) == 1
-    assert configuration.rules[0].name == "Shutdown after backup"
+    assert configuration.rules[0].name == "Shutdown after backup test rule"
     assert configuration.rules[0].enabled is True
 
 
-def test_configuration_loader_parses_datetime_values(tmp_path: Path) -> None:
+def test_configuration_loader_loads_nested_conditions(tmp_path: Path) -> None:
     configuration_file = tmp_path / "powerrules.yaml"
     configuration_file.write_text(
         """
 rules:
-  - name: "Night rule"
+  - name: "Nested test rule"
     conditions:
-      datetime:
-        between:
-          start: "22:30:15"
-          end: "7"
+      and:
+        - process:
+            name: "backup.exe"
+            running: false
+        - or:
+            - datetime:
+                between:
+                  start: "22"
+                  end: "6"
+            - process:
+                name: "maintenance.exe"
+                running: true
     action:
       type: shutdown
 """,
@@ -50,12 +58,13 @@ rules:
 
     configuration = ConfigurationLoader().load(configuration_file)
 
-    condition = configuration.rules[0].conditions.datetime
+    condition = configuration.rules[0].conditions
 
-    assert condition is not None
-    assert condition.between is not None
-    assert condition.between.start == time(22, 30, 15)
-    assert condition.between.end == time(7, 0)
+    assert condition.and_conditions is not None
+    assert len(condition.and_conditions) == 2
+    assert condition.and_conditions[0].process is not None
+    assert condition.and_conditions[1].or_conditions is not None
+    assert len(condition.and_conditions[1].or_conditions) == 2
 
 
 def test_configuration_loader_rejects_invalid_configuration(tmp_path: Path) -> None:
@@ -63,7 +72,7 @@ def test_configuration_loader_rejects_invalid_configuration(tmp_path: Path) -> N
     configuration_file.write_text(
         """
 rules:
-  - name: "Invalid rule"
+  - name: "Invalid test rule"
     conditions:
       process:
         name: "backup.exe"

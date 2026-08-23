@@ -1,4 +1,4 @@
-from powerrules.cli import main
+from powerrules.cli.app import app
 
 if __name__ == "__main__":
-    main()
+    app()
