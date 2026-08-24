@@ -92,7 +92,7 @@ pwru policy run --policy my-policy.yaml
 | **Logical conditions** | Combine conditions using `and`, `or`, and `not` |
 | **Power actions** | Shutdown, sleep, hibernate, and reboot |
 | **Continuous evaluation** | Evaluate policies repeatedly |
-| **First-match execution** | Only the first matching rule is executed once |
+| **First-match execution** | Only the first matching rule executes once per match |
 
 ## Supported Platforms
 
