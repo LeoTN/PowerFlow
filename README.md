@@ -1,6 +1,6 @@
 <div align="center">
 
-[![PowerRules](https://raw.githubusercontent.com/LeoTN/PowerRules/development/assets/logo/readme_logo.svg)](https://github.com/LeoTN/PowerRules)
+[![PowerRules](https://raw.githubusercontent.com/LeoTN/PowerRules/main/assets/logo/readme_logo.svg)](https://github.com/LeoTN/PowerRules)
 
 [![latest-version](https://img.shields.io/github/v/release/LeoTN/PowerRules?&filter=*.*.*&display_name=release&style=for-the-badge&logo=Rocket&logoColor=green&label=LATEST&color=green)](https://github.com/LeoTN/PowerRules/releases/latest)
 [![latest-beta-version](https://img.shields.io/github/v/release/LeoTN/PowerRules?&include_prereleases&filter=*.*.*b*&display_name=release&style=for-the-badge&logo=Textpattern&logoColor=orange&label=LATEST%20BETA&color=orange)](https://github.com/LeoTN/PowerRules/releases)
@@ -33,10 +33,10 @@ pip install powerrules
 **Create a policy file:**
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/LeoTN/PowerRules/development/assets/schema/powerrules_policy.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/LeoTN/PowerRules/main/assets/schema/powerrules_policy.schema.json
 
 rules:
-  - name: "Shutdown at night after weekend backup"
+  - name: "Shutdown after nightly weekend backup"
     conditions:
       and:
         - process:
@@ -45,7 +45,7 @@ rules:
         - datetime:
             between:
               start: "23"
-              end: "06"
+              end: "1:30"
         - datetime:
             weekday: ["Saturday", "Sunday"]
     action:
@@ -92,7 +92,7 @@ pwru policy run --policy my-policy.yaml
 | **Logical conditions** | Combine conditions using `and`, `or`, and `not` |
 | **Power actions** | Shutdown, sleep, hibernate, and reboot |
 | **Continuous evaluation** | Evaluate policies repeatedly |
-| **First-match execution** | Only the first matching rule is executed once until another rule matches |
+| **First-match execution** | Only the first matching rule is executed once |
 
 ## Supported Platforms
 

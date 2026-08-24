@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/LeoTN/PowerRules/development/assets/schema/powerrules_policy.schema.json",
+    "$id": "https://raw.githubusercontent.com/LeoTN/PowerRules/main/assets/schema/powerrules_policy.schema.json",
     "title": "PowerRules Policy",
     "description": "Schema for PowerRules policy files.",
     "type": "object",
@@ -46,7 +46,6 @@
         },
         "condition": {
             "type": "object",
-            "additionalProperties": false,
             "oneOf": [
                 {
                     "required": [
@@ -106,7 +105,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "unevaluatedProperties": false
         },
         "processCondition": {
             "type": "object",
@@ -128,7 +128,6 @@
         },
         "dateTimeCondition": {
             "type": "object",
-            "additionalProperties": false,
             "oneOf": [
                 {
                     "required": [
@@ -163,7 +162,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "unevaluatedProperties": false
         },
         "timeRange": {
             "type": "object",
