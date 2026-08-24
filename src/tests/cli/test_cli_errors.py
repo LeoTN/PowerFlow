@@ -64,7 +64,8 @@ def test_cli_error_handler_handles_condition_error(
     captured = capsys.readouterr()
 
     assert exc_info.value.exit_code == EXIT_RUNTIME_ERROR
-    assert "[ERROR] Test condition failed" in captured.err
+    # The message is wrapped by "handle_cli_error()"
+    assert "[ERROR] Failed to evaluate condition: Test condition failed" in captured.err
 
 
 def test_cli_command_handles_command_exception(
@@ -80,7 +81,8 @@ def test_cli_command_handles_command_exception(
     captured = capsys.readouterr()
 
     assert exc_info.value.exit_code == EXIT_RUNTIME_ERROR
-    assert "[ERROR] Test condition failed" in captured.err
+    # The message is wrapped by "handle_cli_error()"
+    assert "[ERROR] Failed to evaluate condition: Test condition failed" in captured.err
 
 
 def test_cli_command_does_not_intercept_typer_exit() -> None:

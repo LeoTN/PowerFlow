@@ -1,0 +1,208 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/LeoTN/PowerRules/development/assets/schema/powerrules_policy.schema.json",
+    "title": "PowerRules Policy",
+    "description": "Schema for PowerRules policy files.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "rules"
+    ],
+    "properties": {
+        "rules": {
+            "type": "array",
+            "description": "Ordered list of rules. The first matching rule is executed.",
+            "items": {
+                "$ref": "#/$defs/rule"
+            }
+        }
+    },
+    "$defs": {
+        "rule": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "name",
+                "conditions",
+                "action"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Human-readable name of the rule."
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether the rule is enabled."
+                },
+                "conditions": {
+                    "$ref": "#/$defs/condition"
+                },
+                "action": {
+                    "$ref": "#/$defs/action"
+                }
+            }
+        },
+        "condition": {
+            "type": "object",
+            "additionalProperties": false,
+            "oneOf": [
+                {
+                    "required": [
+                        "and"
+                    ],
+                    "properties": {
+                        "and": {
+                            "type": "array",
+                            "minItems": 2,
+                            "items": {
+                                "$ref": "#/$defs/condition"
+                            }
+                        }
+                    }
+                },
+                {
+                    "required": [
+                        "or"
+                    ],
+                    "properties": {
+                        "or": {
+                            "type": "array",
+                            "minItems": 2,
+                            "items": {
+                                "$ref": "#/$defs/condition"
+                            }
+                        }
+                    }
+                },
+                {
+                    "required": [
+                        "not"
+                    ],
+                    "properties": {
+                        "not": {
+                            "$ref": "#/$defs/condition"
+                        }
+                    }
+                },
+                {
+                    "required": [
+                        "process"
+                    ],
+                    "properties": {
+                        "process": {
+                            "$ref": "#/$defs/processCondition"
+                        }
+                    }
+                },
+                {
+                    "required": [
+                        "datetime"
+                    ],
+                    "properties": {
+                        "datetime": {
+                            "$ref": "#/$defs/dateTimeCondition"
+                        }
+                    }
+                }
+            ]
+        },
+        "processCondition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "name",
+                "running"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the process."
+                },
+                "running": {
+                    "type": "boolean",
+                    "description": "Whether the process is expected to be running."
+                }
+            }
+        },
+        "dateTimeCondition": {
+            "type": "object",
+            "additionalProperties": false,
+            "oneOf": [
+                {
+                    "required": [
+                        "between"
+                    ],
+                    "properties": {
+                        "between": {
+                            "$ref": "#/$defs/timeRange"
+                        }
+                    }
+                },
+                {
+                    "required": [
+                        "weekday"
+                    ],
+                    "properties": {
+                        "weekday": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Monday",
+                                    "Tuesday",
+                                    "Wednesday",
+                                    "Thursday",
+                                    "Friday",
+                                    "Saturday",
+                                    "Sunday"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "timeRange": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "start",
+                "end"
+            ],
+            "properties": {
+                "start": {
+                    "$ref": "#/$defs/time"
+                },
+                "end": {
+                    "$ref": "#/$defs/time"
+                }
+            }
+        },
+        "time": {
+            "type": "string",
+            "description": "Time in H, HH, H:MM, HH:MM, H:MM:SS, or HH:MM:SS format",
+            "pattern": "^(?:[0-9]|[01][0-9]|2[0-3])(?::[0-5][0-9](?::[0-5][0-9])?)?$"
+        },
+        "action": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "shutdown",
+                        "sleep",
+                        "hibernate",
+                        "reboot"
+                    ]
+                }
+            }
+        }
+    }
+}
