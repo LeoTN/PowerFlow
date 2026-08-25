@@ -3,10 +3,23 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from powerrules.application.runtime import PowerRulesRuntime
+from powerrules.application.runtime import (
+    PlatformProviders,
+    PowerRulesRuntime,
+    get_platform_providers,
+)
 from powerrules.engine.exceptions import ConditionEvaluationError
 from powerrules.engine.models import Rule, RuleEvaluationResult, RuleSet
+from powerrules.platform.linux.power import LinuxPowerProvider
+from powerrules.platform.macos.power import MacOSPowerProvider
+from powerrules.platform.process import PsUtilProcessProvider
+from powerrules.platform.windows.power import WindowsPowerProvider
+from powerrules.providers.clock import SystemClockProvider
 from tests.dummies import Dummy_Action, Dummy_Condition, Dummy_StopEvaluation
+
+#########################
+# PowerRulesRuntime tests
+#########################
 
 
 def test_runtime_run_once_evaluates_configuration(
@@ -17,10 +30,27 @@ def test_runtime_run_once_evaluates_configuration(
     expected_result = RuleEvaluationResult(matched_rule=None)
     rule_set = RuleSet(rules=())
 
+    # It does not really matter which platform provider is mocked here
+    providers = PlatformProviders(
+        clock=Mock(spec=SystemClockProvider),
+        process=Mock(spec=PsUtilProcessProvider),
+        power=Mock(spec=WindowsPowerProvider),
+    )
+
     with (
-        patch("powerrules.application.runtime.ConfigurationLoader") as mock_loader,
-        patch("powerrules.application.runtime.ConfigurationBuilder") as mock_builder,
-        patch("powerrules.application.runtime.RuleEngine") as mock_engine,
+        patch(
+            "powerrules.application.runtime.ConfigurationLoader",
+        ) as mock_loader,
+        patch(
+            "powerrules.application.runtime.ConfigurationBuilder",
+        ) as mock_builder,
+        patch(
+            "powerrules.application.runtime.RuleEngine",
+        ) as mock_engine,
+        patch(
+            "powerrules.application.runtime.get_platform_providers",
+            return_value=providers,
+        ),
     ):
         mock_loader.return_value.load.return_value = "configuration"
         mock_builder.return_value.build.return_value = rule_set
@@ -29,48 +59,26 @@ def test_runtime_run_once_evaluates_configuration(
         result = PowerRulesRuntime().run_once(configuration_file)
 
     assert result is expected_result
-    mock_loader.return_value.load.assert_called_once_with(configuration_file)
-    mock_builder.return_value.build.assert_called_once_with("configuration")
-    mock_engine.assert_called_once_with(rule_set.rules)
-    mock_engine.return_value.evaluate.assert_called_once_with()
 
-
-def test_runtime_run_once_injects_providers() -> None:
-    clock_provider = object()
-    process_provider = object()
-    power_provider = object()
-
-    rule_set = RuleSet(rules=())
-    with (
-        patch(
-            "powerrules.application.runtime.SystemClockProvider",
-            return_value=clock_provider,
-        ),
-        patch(
-            "powerrules.application.runtime.WindowsProcessProvider",
-            return_value=process_provider,
-        ),
-        patch(
-            "powerrules.application.runtime.WindowsPowerProvider",
-            return_value=power_provider,
-        ),
-        patch("powerrules.application.runtime.ConfigurationLoader") as mock_loader,
-        patch("powerrules.application.runtime.ConfigurationBuilder") as mock_builder,
-        patch("powerrules.application.runtime.RuleEngine") as mock_engine,
-    ):
-        mock_loader.return_value.load.return_value = "configuration"
-        mock_builder.return_value.build.return_value = rule_set
-        mock_engine.return_value.evaluate.return_value = RuleEvaluationResult(
-            matched_rule=None
-        )
-
-        PowerRulesRuntime().run_once(Path("powerrules.yaml"))
+    mock_loader.return_value.load.assert_called_once_with(
+        configuration_file,
+    )
 
     mock_builder.assert_called_once_with(
-        clock_provider=clock_provider,
-        process_provider=process_provider,
-        power_provider=power_provider,
+        clock_provider=providers.clock,
+        process_provider=providers.process,
+        power_provider=providers.power,
     )
+
+    mock_builder.return_value.build.assert_called_once_with(
+        "configuration",
+    )
+
+    mock_engine.assert_called_once_with(
+        rule_set.rules,
+    )
+
+    mock_engine.return_value.evaluate.assert_called_once_with()
 
 
 def test_runtime_run_once_propagates_condition_evaluation_error(
@@ -281,3 +289,113 @@ def test_runtime_run_continuously_builds_rule_engine_only_once() -> None:
         )
 
     build_rule_engine.assert_called_once_with(Path("powerrules.yaml"))
+
+
+def test_runtime_builds_rule_engine_with_platform_providers(
+    tmp_path: Path,
+) -> None:
+    configuration_file = tmp_path / "powerrules.yaml"
+    rule_set = RuleSet(rules=())
+
+    # It does not really matter which platform provider is mocked here
+    providers = PlatformProviders(
+        clock=Mock(spec=SystemClockProvider),
+        process=Mock(spec=PsUtilProcessProvider),
+        power=Mock(spec=WindowsPowerProvider),
+    )
+
+    with (
+        patch(
+            "powerrules.application.runtime.ConfigurationLoader",
+        ) as mock_loader,
+        patch(
+            "powerrules.application.runtime.ConfigurationBuilder",
+        ) as mock_builder,
+        patch(
+            "powerrules.application.runtime.RuleEngine",
+        ) as mock_engine,
+        patch(
+            "powerrules.application.runtime.get_platform_providers",
+            return_value=providers,
+        ),
+    ):
+        mock_loader.return_value.load.return_value = "configuration"
+        mock_builder.return_value.build.return_value = rule_set
+
+        PowerRulesRuntime._build_rule_engine(
+            configuration_path=configuration_file,
+        )
+
+    mock_loader.return_value.load.assert_called_once_with(
+        configuration_file,
+    )
+
+    mock_builder.assert_called_once_with(
+        clock_provider=providers.clock,
+        process_provider=providers.process,
+        power_provider=providers.power,
+    )
+
+    mock_builder.return_value.build.assert_called_once_with(
+        "configuration",
+    )
+
+    mock_engine.assert_called_once_with(
+        rule_set.rules,
+    )
+
+
+##############################
+# get_platform_providers tests
+##############################
+
+
+def test_get_platform_providers_returns_windows_providers() -> None:
+    with patch(
+        "powerrules.application.runtime.platform.system",
+        return_value="Windows",
+    ):
+        providers = get_platform_providers()
+
+    assert isinstance(providers, PlatformProviders)
+    assert isinstance(providers.clock, SystemClockProvider)
+    assert isinstance(providers.process, PsUtilProcessProvider)
+    assert isinstance(providers.power, WindowsPowerProvider)
+
+
+def test_get_platform_providers_returns_linux_providers() -> None:
+    with patch(
+        "powerrules.application.runtime.platform.system",
+        return_value="Linux",
+    ):
+        providers = get_platform_providers()
+
+    assert isinstance(providers, PlatformProviders)
+    assert isinstance(providers.clock, SystemClockProvider)
+    assert isinstance(providers.process, PsUtilProcessProvider)
+    assert isinstance(providers.power, LinuxPowerProvider)
+
+
+def test_get_platform_providers_returns_macos_providers() -> None:
+    with patch(
+        "powerrules.application.runtime.platform.system",
+        return_value="Darwin",
+    ):
+        providers = get_platform_providers()
+
+    assert isinstance(providers, PlatformProviders)
+    assert isinstance(providers.clock, SystemClockProvider)
+    assert isinstance(providers.process, PsUtilProcessProvider)
+    assert isinstance(providers.power, MacOSPowerProvider)
+
+
+def test_get_platform_providers_rejects_unsupported_platform() -> None:
+    with patch(
+        "powerrules.application.runtime.platform.system",
+        return_value="FreeBSD",
+    ):
+        with pytest.raises(
+            RuntimeError,
+            match="Unsupported operating system: FreeBSD",
+        ):
+            get_platform_providers()

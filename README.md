@@ -99,8 +99,10 @@ pwru policy run --policy my-policy.yaml
 | Platform | Status |
 |----------|:------:|
 | Windows 10/11 | ✅ |
-| Linux | Planned |
-| macOS | Planned |
+| Linux | ✅ |
+| macOS* | ✅ |
+
+\* Hibernation is not supported on macOS.
 
 ## Credits & License
 
