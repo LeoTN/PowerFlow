@@ -34,8 +34,8 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.13",
     "Operating System :: Microsoft :: Windows",
-    "Operating System :: Microsoft :: Linux",
-    "Operating System :: Microsoft :: MacOS"
+    "Operating System :: POSIX :: Linux",
+    Operating System :: MacOS"
 ]
 dependencies = [
     "pyyaml>=6.0,<7.0",
