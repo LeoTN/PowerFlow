@@ -127,11 +127,11 @@ def test_runtime_run_continuously_executes_matching_rule_once() -> None:
             "powerrules.application.runtime.time.sleep",
             new=sleep,
         ),
+        pytest.raises(Dummy_StopEvaluation),
     ):
-        with pytest.raises(Dummy_StopEvaluation):
-            PowerRulesRuntime().run_continuously(
-                configuration_path=Path("powerrules.yaml"),
-            )
+        PowerRulesRuntime().run_continuously(
+            configuration_path=Path("powerrules.yaml"),
+        )
 
     assert action.execution_count == 2
     assert rule_engine.find_match.call_count == 4
@@ -201,12 +201,12 @@ def test_runtime_run_continuously_does_not_stop_after_match_when_disabled() -> N
             "powerrules.application.runtime.time.sleep",
             new=sleep,
         ),
+        pytest.raises(Dummy_StopEvaluation),
     ):
-        with pytest.raises(Dummy_StopEvaluation):
-            PowerRulesRuntime().run_continuously(
-                configuration_path=Path("powerrules.yaml"),
-                stop_on_match=False,
-            )
+        PowerRulesRuntime().run_continuously(
+            configuration_path=Path("powerrules.yaml"),
+            stop_on_match=False,
+        )
 
     assert action.execution_count == 2
     assert rule_engine.find_match.call_count == 3
@@ -231,12 +231,12 @@ def test_runtime_run_continuously_uses_configured_evaluation_interval() -> None:
             "powerrules.application.runtime.time.sleep",
             new=sleep,
         ),
+        pytest.raises(Dummy_StopEvaluation),
     ):
-        with pytest.raises(Dummy_StopEvaluation):
-            PowerRulesRuntime().run_continuously(
-                configuration_path=Path("powerrules.yaml"),
-                evaluation_interval=30.0,
-            )
+        PowerRulesRuntime().run_continuously(
+            configuration_path=Path("powerrules.yaml"),
+            evaluation_interval=30.0,
+        )
 
     sleep.assert_called_once_with(30.0)
 
@@ -274,10 +274,10 @@ def test_runtime_run_continuously_builds_rule_engine_only_once() -> None:
             "powerrules.application.runtime.time.sleep",
             new=sleep,
         ),
+        pytest.raises(Dummy_StopEvaluation),
     ):
-        with pytest.raises(Dummy_StopEvaluation):
-            PowerRulesRuntime().run_continuously(
-                configuration_path=Path("powerrules.yaml"),
-            )
+        PowerRulesRuntime().run_continuously(
+            configuration_path=Path("powerrules.yaml"),
+        )
 
     build_rule_engine.assert_called_once_with(Path("powerrules.yaml"))

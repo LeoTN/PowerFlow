@@ -1,6 +1,6 @@
 import pytest
 import typer
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 from powerrules.cli.errors import (
     EXIT_POLICY_ERROR,
