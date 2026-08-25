@@ -2,42 +2,18 @@ import pytest
 
 from powerrules.conditions.operators import AndCondition, NotCondition, OrCondition
 from powerrules.engine.exceptions import ConditionEvaluationError
-
-
-# Dummy condition which returns a fixed evaluation result
-class Dummy_Condition:
-    def __init__(self, result: bool):
-        self.result = result
-
-    def evaluate(self) -> bool:
-        return self.result
-
-
-# This condition keeps track of how many times it has been evaluated
-class Dummy_TrackingCondition:
-    def __init__(self, result: bool):
-        self.result = result
-        self.evaluation_count = 0
-
-    def evaluate(self) -> bool:
-        self.evaluation_count += 1
-        return self.result
-
-
-class Dummy_FailingCondition:
-    def evaluate(self) -> bool:
-        raise ConditionEvaluationError("Test condition failed")
+from tests.dummies import Dummy_Condition
 
 
 def test_nested_conditions_are_evaluated_correctly() -> None:
     condition = AndCondition(
         conditions=(
-            Dummy_Condition(True),
+            Dummy_Condition(given_result=True),
             NotCondition(
                 condition=OrCondition(
                     conditions=(
-                        Dummy_Condition(False),
-                        Dummy_Condition(False),
+                        Dummy_Condition(given_result=False),
+                        Dummy_Condition(given_result=False),
                     )
                 )
             ),
@@ -55,9 +31,9 @@ def test_nested_conditions_are_evaluated_correctly() -> None:
 def test_and_condition_matches_when_all_conditions_match() -> None:
     condition = AndCondition(
         conditions=(
-            Dummy_Condition(True),
-            Dummy_Condition(True),
-            Dummy_Condition(True),
+            Dummy_Condition(given_result=True),
+            Dummy_Condition(given_result=True),
+            Dummy_Condition(given_result=True),
         )
     )
 
@@ -67,9 +43,9 @@ def test_and_condition_matches_when_all_conditions_match() -> None:
 def test_and_condition_does_not_match_when_one_condition_does_not_match() -> None:
     condition = AndCondition(
         conditions=(
-            Dummy_Condition(True),
-            Dummy_Condition(False),
-            Dummy_Condition(True),
+            Dummy_Condition(given_result=True),
+            Dummy_Condition(given_result=False),
+            Dummy_Condition(given_result=True),
         )
     )
 
@@ -78,8 +54,8 @@ def test_and_condition_does_not_match_when_one_condition_does_not_match() -> Non
 
 # Does the evaluation stop after the first false condition is found?
 def test_and_condition_short_circuits_after_first_false_condition() -> None:
-    first_condition = Dummy_TrackingCondition(False)
-    second_condition = Dummy_TrackingCondition(True)
+    first_condition = Dummy_Condition(given_result=False)
+    second_condition = Dummy_Condition(given_result=True)
 
     condition = AndCondition(
         conditions=(
@@ -94,7 +70,14 @@ def test_and_condition_short_circuits_after_first_false_condition() -> None:
 
 
 def test_and_condition_propagates_condition_evaluation_error() -> None:
-    condition = AndCondition(conditions=(Dummy_FailingCondition(),))
+    condition = AndCondition(
+        conditions=(
+            Dummy_Condition(
+                given_result=True,
+                given_exception=ConditionEvaluationError("Test condition failed"),
+            ),
+        )
+    )
 
     with pytest.raises(ConditionEvaluationError):
         condition.evaluate()
@@ -108,9 +91,9 @@ def test_and_condition_propagates_condition_evaluation_error() -> None:
 def test_or_condition_matches_when_one_condition_matches() -> None:
     condition = OrCondition(
         conditions=(
-            Dummy_Condition(False),
-            Dummy_Condition(True),
-            Dummy_Condition(False),
+            Dummy_Condition(given_result=False),
+            Dummy_Condition(given_result=True),
+            Dummy_Condition(given_result=False),
         )
     )
 
@@ -120,9 +103,9 @@ def test_or_condition_matches_when_one_condition_matches() -> None:
 def test_or_condition_does_not_match_when_no_condition_matches() -> None:
     condition = OrCondition(
         conditions=(
-            Dummy_Condition(False),
-            Dummy_Condition(False),
-            Dummy_Condition(False),
+            Dummy_Condition(given_result=False),
+            Dummy_Condition(given_result=False),
+            Dummy_Condition(given_result=False),
         )
     )
 
@@ -131,8 +114,8 @@ def test_or_condition_does_not_match_when_no_condition_matches() -> None:
 
 # Does the evaluation stop after the first true condition is found?
 def test_or_condition_short_circuits_after_first_true_condition() -> None:
-    first_condition = Dummy_TrackingCondition(True)
-    second_condition = Dummy_TrackingCondition(False)
+    first_condition = Dummy_Condition(given_result=True)
+    second_condition = Dummy_Condition(given_result=False)
 
     condition = OrCondition(
         conditions=(
@@ -147,7 +130,14 @@ def test_or_condition_short_circuits_after_first_true_condition() -> None:
 
 
 def test_or_condition_propagates_condition_evaluation_error() -> None:
-    condition = OrCondition(conditions=(Dummy_FailingCondition(),))
+    condition = OrCondition(
+        conditions=(
+            Dummy_Condition(
+                given_result=True,
+                given_exception=ConditionEvaluationError("Test condition failed"),
+            ),
+        )
+    )
 
     with pytest.raises(ConditionEvaluationError):
         condition.evaluate()
@@ -160,7 +150,7 @@ def test_or_condition_propagates_condition_evaluation_error() -> None:
 
 def test_not_condition_matches_when_child_does_not_match() -> None:
     condition = NotCondition(
-        condition=Dummy_Condition(False),
+        condition=Dummy_Condition(given_result=False),
     )
 
     assert condition.evaluate() is True
@@ -168,7 +158,7 @@ def test_not_condition_matches_when_child_does_not_match() -> None:
 
 def test_not_condition_does_not_match_when_child_matches() -> None:
     condition = NotCondition(
-        condition=Dummy_Condition(True),
+        condition=Dummy_Condition(given_result=True),
     )
 
     assert condition.evaluate() is False
@@ -176,7 +166,10 @@ def test_not_condition_does_not_match_when_child_matches() -> None:
 
 def test_not_condition_propagates_condition_evaluation_error() -> None:
     condition = NotCondition(
-        condition=Dummy_FailingCondition(),
+        condition=Dummy_Condition(
+            given_result=True,
+            given_exception=ConditionEvaluationError("Test condition failed"),
+        ),
     )
 
     with pytest.raises(

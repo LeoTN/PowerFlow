@@ -5,18 +5,9 @@ from typer.testing import CliRunner
 
 from powerrules.cli.app import app
 from powerrules.engine.models import Rule, RuleEvaluationResult
+from tests.dummies import Dummy_Action, Dummy_Condition
 
 runner = CliRunner()
-
-
-class Dummy_Condition:
-    def evaluate(self) -> bool:
-        return True
-
-
-class Dummy_Action:
-    def execute(self) -> None:
-        pass
 
 
 def test_cli_displays_help() -> None:
@@ -127,7 +118,7 @@ rules:
 def test_cli_policy_run_once_reports_matching_rule() -> None:
     rule = Rule(
         name="Test rule",
-        condition=Dummy_Condition(),
+        condition=Dummy_Condition(given_result=True),
         action=Dummy_Action(),
     )
     evaluation_result = RuleEvaluationResult(matched_rule=rule)

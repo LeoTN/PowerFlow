@@ -3,13 +3,7 @@ from unittest.mock import patch
 import pytest
 
 from powerrules.platform.windows.process import WindowsProcessProvider
-
-
-class Dummy_Process:
-    def __init__(self, process_name: str | None):
-        self.info = {
-            "name": process_name,
-        }
+from tests.dummies import Dummy_Process
 
 
 def test_windows_process_provider_detects_running_process() -> None:

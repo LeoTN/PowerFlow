@@ -7,41 +7,7 @@ from powerrules.actions.power import (
     SleepAction,
 )
 from powerrules.engine.exceptions import ActionExecutionError
-
-
-# Keep track of the number of times each action is executed
-class Dummy_PowerProvider:
-    def __init__(self):
-        self.shutdown_count = 0
-        self.sleep_count = 0
-        self.hibernate_count = 0
-        self.reboot_count = 0
-
-    def shutdown(self) -> None:
-        self.shutdown_count += 1
-
-    def sleep(self) -> None:
-        self.sleep_count += 1
-
-    def hibernate(self) -> None:
-        self.hibernate_count += 1
-
-    def reboot(self) -> None:
-        self.reboot_count += 1
-
-
-class Dummy_FailingPowerProvider:
-    def shutdown(self) -> None:
-        raise OSError("Test shutdown failure")
-
-    def sleep(self) -> None:
-        raise OSError("Test sleep failure")
-
-    def hibernate(self) -> None:
-        raise OSError("Test hibernate failure")
-
-    def reboot(self) -> None:
-        raise OSError("Test reboot failure")
+from tests.dummies import Dummy_PowerProvider
 
 
 def test_shutdown_action_calls_power_provider() -> None:
@@ -86,7 +52,9 @@ def test_reboot_action_calls_power_provider() -> None:
 
 
 def test_shutdown_action_raises_action_execution_error() -> None:
-    action = ShutdownAction(Dummy_FailingPowerProvider())
+    action = ShutdownAction(
+        Dummy_PowerProvider(given_exception=OSError("Test shutdown failure"))
+    )
 
     with pytest.raises(
         ActionExecutionError,
@@ -96,7 +64,9 @@ def test_shutdown_action_raises_action_execution_error() -> None:
 
 
 def test_sleep_action_raises_action_execution_error() -> None:
-    action = SleepAction(Dummy_FailingPowerProvider())
+    action = SleepAction(
+        Dummy_PowerProvider(given_exception=OSError("Test sleep failure"))
+    )
 
     with pytest.raises(
         ActionExecutionError,
@@ -106,7 +76,9 @@ def test_sleep_action_raises_action_execution_error() -> None:
 
 
 def test_hibernate_action_raises_action_execution_error() -> None:
-    action = HibernateAction(Dummy_FailingPowerProvider())
+    action = HibernateAction(
+        Dummy_PowerProvider(given_exception=OSError("Test hibernate failure"))
+    )
 
     with pytest.raises(
         ActionExecutionError,
@@ -116,7 +88,9 @@ def test_hibernate_action_raises_action_execution_error() -> None:
 
 
 def test_reboot_action_raises_action_execution_error() -> None:
-    action = RebootAction(Dummy_FailingPowerProvider())
+    action = RebootAction(
+        Dummy_PowerProvider(given_exception=OSError("Test reboot failure"))
+    )
 
     with pytest.raises(
         ActionExecutionError,

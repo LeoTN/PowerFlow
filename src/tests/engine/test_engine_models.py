@@ -1,20 +1,11 @@
 import pytest
 
 from powerrules.engine.models import Rule, RuleSet
-
-
-class Dummy_Condition:
-    def evaluate(self) -> bool:
-        return True
-
-
-class Dummy_Action:
-    def execute(self) -> None:
-        pass
+from tests.dummies import Dummy_Action, Dummy_Condition
 
 
 def test_rule_uses_expected_defaults() -> None:
-    condition = Dummy_Condition()
+    condition = Dummy_Condition(given_result=True)
     action = Dummy_Action()
 
     rule = Rule(
@@ -32,7 +23,7 @@ def test_rule_uses_expected_defaults() -> None:
 def test_rule_can_be_disabled() -> None:
     rule = Rule(
         name="Disabled test rule",
-        condition=Dummy_Condition(),
+        condition=Dummy_Condition(given_result=True),
         action=Dummy_Action(),
         enabled=False,
     )
@@ -43,7 +34,7 @@ def test_rule_can_be_disabled() -> None:
 def test_rule_is_immutable() -> None:
     rule = Rule(
         name="Test rule",
-        condition=Dummy_Condition(),
+        condition=Dummy_Condition(given_result=True),
         action=Dummy_Action(),
     )
 
@@ -59,7 +50,7 @@ def test_rule_is_immutable() -> None:
 def test_rule_set_contains_rules() -> None:
     rule = Rule(
         name="Test rule",
-        condition=Dummy_Condition(),
+        condition=Dummy_Condition(given_result=True),
         action=Dummy_Action(),
     )
 
@@ -71,13 +62,13 @@ def test_rule_set_contains_rules() -> None:
 def test_rule_set_can_contain_multiple_rules() -> None:
     first_rule = Rule(
         name="First test rule",
-        condition=Dummy_Condition(),
+        condition=Dummy_Condition(given_result=True),
         action=Dummy_Action(),
     )
 
     second_rule = Rule(
         name="Second test rule",
-        condition=Dummy_Condition(),
+        condition=Dummy_Condition(given_result=True),
         action=Dummy_Action(),
     )
 

@@ -1,16 +1,7 @@
 from datetime import datetime, time
 
 from powerrules.conditions.datetime import DateTimeCondition, TimeRange, Weekday
-
-
-# Dummy clock which returns the given time
-class Dummy_ClockProvider:
-    def __init__(self, current_time: datetime):
-        self.current_time = current_time
-
-    def now(self) -> datetime:
-        return self.current_time
-
+from tests.dummies import Dummy_ClockProvider
 
 #################
 # TimeRange tests

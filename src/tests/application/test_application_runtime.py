@@ -6,23 +6,7 @@ import pytest
 from powerrules.application.runtime import PowerRulesRuntime
 from powerrules.engine.exceptions import ConditionEvaluationError
 from powerrules.engine.models import Rule, RuleEvaluationResult, RuleSet
-
-
-class Dummy_Condition:
-    def evaluate(self) -> bool:
-        return True
-
-
-class Dummy_Action:
-    def __init__(self):
-        self.execution_count = 0
-
-    def execute(self) -> None:
-        self.execution_count += 1
-
-
-class Dummy_StopEvaluation(Exception):
-    pass
+from tests.dummies import Dummy_Action, Dummy_Condition, Dummy_StopEvaluation
 
 
 def test_runtime_run_once_evaluates_configuration(
@@ -116,7 +100,7 @@ def test_runtime_run_continuously_executes_matching_rule_once() -> None:
     action = Dummy_Action()
     rule = Rule(
         name="Test rule",
-        condition=Dummy_Condition(),
+        condition=Dummy_Condition(given_result=True),
         action=action,
     )
 
@@ -158,7 +142,7 @@ def test_runtime_run_continuously_stops_after_match_when_enabled() -> None:
     action = Dummy_Action()
     rule = Rule(
         name="Test rule",
-        condition=Dummy_Condition(),
+        condition=Dummy_Condition(given_result=True),
         action=action,
     )
 
@@ -191,7 +175,7 @@ def test_runtime_run_continuously_does_not_stop_after_match_when_disabled() -> N
     action = Dummy_Action()
     rule = Rule(
         name="Test rule",
-        condition=Dummy_Condition(),
+        condition=Dummy_Condition(given_result=True),
         action=action,
     )
 
