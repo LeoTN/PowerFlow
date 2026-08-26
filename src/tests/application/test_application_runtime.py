@@ -10,11 +10,11 @@ from powerrules.application.runtime import (
 )
 from powerrules.engine.exceptions import ConditionEvaluationError
 from powerrules.engine.models import Rule, RuleEvaluationResult, RuleSet
+from powerrules.platform.clock import SystemClockProvider
 from powerrules.platform.linux.power import LinuxPowerProvider
 from powerrules.platform.macos.power import MacOSPowerProvider
 from powerrules.platform.process import PsUtilProcessProvider
 from powerrules.platform.windows.power import WindowsPowerProvider
-from powerrules.providers.clock import SystemClockProvider
 from tests.dummies import Dummy_Action, Dummy_Condition, Dummy_StopEvaluation
 
 #########################

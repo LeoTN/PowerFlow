@@ -7,11 +7,12 @@ from powerrules.config.builder import ConfigurationBuilder
 from powerrules.config.loader import ConfigurationLoader
 from powerrules.engine.models import Rule, RuleEvaluationResult
 from powerrules.engine.rule_engine import RuleEngine
+from powerrules.platform.clock import SystemClockProvider
 from powerrules.platform.linux.power import LinuxPowerProvider
 from powerrules.platform.macos.power import MacOSPowerProvider
 from powerrules.platform.process import PsUtilProcessProvider
 from powerrules.platform.windows.power import WindowsPowerProvider
-from powerrules.providers.clock import ClockProvider, SystemClockProvider
+from powerrules.providers.clock import ClockProvider
 from powerrules.providers.power import PowerProvider
 from powerrules.providers.process import ProcessProvider
 
