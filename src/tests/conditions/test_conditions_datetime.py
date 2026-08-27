@@ -53,15 +53,6 @@ def test_time_range_excludes_end_time() -> None:
     assert time_range.contains(time(18, 0)) is False
 
 
-def test_time_range_matches_time_after_midnight_when_crossing_midnight() -> None:
-    time_range = TimeRange(
-        start=time(22, 0),
-        end=time(6, 0),
-    )
-
-    assert time_range.contains(time(2, 0)) is True
-
-
 def test_time_range_matches_time_before_midnight_when_crossing_midnight() -> None:
     time_range = TimeRange(
         start=time(22, 0),
@@ -69,6 +60,15 @@ def test_time_range_matches_time_before_midnight_when_crossing_midnight() -> Non
     )
 
     assert time_range.contains(time(23, 0)) is True
+
+
+def test_time_range_matches_time_after_midnight_when_crossing_midnight() -> None:
+    time_range = TimeRange(
+        start=time(22, 0),
+        end=time(6, 0),
+    )
+
+    assert time_range.contains(time(2, 0)) is True
 
 
 def test_time_range_does_not_match_time_outside_midnight_range() -> None:

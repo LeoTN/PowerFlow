@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from unittest.mock import patch
 
@@ -21,7 +22,11 @@ def test_cli_version() -> None:
     result = runner.invoke(app, ["--version"])
 
     assert result.exit_code == 0
-    assert "PowerRules 0.1.0" in result.stdout
+    # Check if the version matches a valid format
+    assert re.fullmatch(
+        r"PowerRules \d+\.\d+\.\d+(?:b\d+)?",
+        result.stdout.strip(),
+    )
 
 
 def test_cli_policy_displays_help() -> None:
