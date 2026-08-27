@@ -92,6 +92,7 @@ pwru policy run --policy my-policy.yaml
 | **Rule-based power management** | Define ordered rules with conditions and power actions |
 | **Process conditions** | Match rules based on whether a process is running |
 | **Time conditions** | Match time ranges and weekdays |
+| **Window conditions** | Match window titles |
 | **Logical conditions** | Combine conditions using `and`, `or`, and `not` |
 | **Power actions** | Shutdown, sleep, hibernate, and reboot |
 | **Continuous evaluation** | Evaluate policies repeatedly |
