@@ -24,6 +24,7 @@ from tests.dummies import (
     Dummy_ClockProvider,
     Dummy_PowerProvider,
     Dummy_ProcessProvider,
+    Dummy_WindowProvider,
 )
 
 
@@ -48,6 +49,7 @@ def test_configuration_builder_builds_rule_set() -> None:
     builder = ConfigurationBuilder(
         clock_provider=Dummy_ClockProvider(datetime(2026, 8, 22, 12, 0)),
         process_provider=Dummy_ProcessProvider(given_is_running=True),
+        window_provider=Dummy_WindowProvider(given_window_exists=True),
         power_provider=Dummy_PowerProvider(),
     )
 
@@ -79,6 +81,7 @@ def test_configuration_builder_preserves_rule_properties() -> None:
     builder = ConfigurationBuilder(
         clock_provider=Dummy_ClockProvider(datetime(2026, 8, 22, 12, 0)),
         process_provider=Dummy_ProcessProvider(given_is_running=True),
+        window_provider=Dummy_WindowProvider(given_window_exists=True),
         power_provider=Dummy_PowerProvider(),
     )
 
@@ -113,6 +116,7 @@ def test_configuration_builder_builds_process_condition() -> None:
     builder = ConfigurationBuilder(
         clock_provider=Dummy_ClockProvider(datetime(2026, 8, 22, 12, 0)),
         process_provider=process_provider,
+        window_provider=Dummy_WindowProvider(given_window_exists=True),
         power_provider=Dummy_PowerProvider(),
     )
 
@@ -154,6 +158,7 @@ def test_configuration_builder_builds_datetime_between_condition() -> None:
     builder = ConfigurationBuilder(
         clock_provider=clock_provider,
         process_provider=Dummy_ProcessProvider(given_is_running=True),
+        window_provider=Dummy_WindowProvider(given_window_exists=True),
         power_provider=Dummy_PowerProvider(),
     )
 
@@ -190,6 +195,7 @@ def test_configuration_builder_builds_datetime_weekday_condition() -> None:
     builder = ConfigurationBuilder(
         clock_provider=Dummy_ClockProvider(datetime(2026, 8, 22, 12, 0)),
         process_provider=Dummy_ProcessProvider(given_is_running=True),
+        window_provider=Dummy_WindowProvider(given_window_exists=True),
         power_provider=Dummy_PowerProvider(),
     )
 
@@ -230,6 +236,7 @@ def test_configuration_builder_builds_shutdown_action() -> None:
     builder = ConfigurationBuilder(
         clock_provider=Dummy_ClockProvider(datetime(2026, 8, 22, 12, 0)),
         process_provider=Dummy_ProcessProvider(given_is_running=True),
+        window_provider=Dummy_WindowProvider(given_window_exists=True),
         power_provider=power_provider,
     )
 
@@ -260,6 +267,7 @@ def test_configuration_builder_builds_sleep_action() -> None:
     builder = ConfigurationBuilder(
         clock_provider=Dummy_ClockProvider(datetime(2026, 8, 22, 12, 0)),
         process_provider=Dummy_ProcessProvider(given_is_running=True),
+        window_provider=Dummy_WindowProvider(given_window_exists=True),
         power_provider=power_provider,
     )
 
@@ -290,6 +298,7 @@ def test_configuration_builder_builds_hibernate_action() -> None:
     builder = ConfigurationBuilder(
         clock_provider=Dummy_ClockProvider(datetime(2026, 8, 22, 12, 0)),
         process_provider=Dummy_ProcessProvider(given_is_running=True),
+        window_provider=Dummy_WindowProvider(given_window_exists=True),
         power_provider=power_provider,
     )
 
@@ -320,6 +329,7 @@ def test_configuration_builder_builds_reboot_action() -> None:
     builder = ConfigurationBuilder(
         clock_provider=Dummy_ClockProvider(datetime(2026, 8, 22, 12, 0)),
         process_provider=Dummy_ProcessProvider(given_is_running=True),
+        window_provider=Dummy_WindowProvider(given_window_exists=True),
         power_provider=power_provider,
     )
 
@@ -367,6 +377,7 @@ def test_configuration_builder_preserves_rule_order() -> None:
     builder = ConfigurationBuilder(
         clock_provider=Dummy_ClockProvider(datetime(2026, 8, 22, 12, 0)),
         process_provider=Dummy_ProcessProvider(given_is_running=True),
+        window_provider=Dummy_WindowProvider(given_window_exists=True),
         power_provider=Dummy_PowerProvider(),
     )
 
@@ -421,6 +432,7 @@ def test_configuration_builder_builds_nested_conditions() -> None:
     builder = ConfigurationBuilder(
         clock_provider=Dummy_ClockProvider(datetime(2026, 8, 22, 12, 0)),
         process_provider=Dummy_ProcessProvider(given_is_running=True),
+        window_provider=Dummy_WindowProvider(given_window_exists=True),
         power_provider=Dummy_PowerProvider(),
     )
 

@@ -11,10 +11,12 @@ from powerrules.platform.clock import SystemClockProvider
 from powerrules.platform.linux.power import LinuxPowerProvider
 from powerrules.platform.macos.power import MacOSPowerProvider
 from powerrules.platform.process import PsUtilProcessProvider
+from powerrules.platform.window import PyWinCtlWindowProvider
 from powerrules.platform.windows.power import WindowsPowerProvider
 from powerrules.providers.clock import ClockProvider
 from powerrules.providers.power import PowerProvider
 from powerrules.providers.process import ProcessProvider
+from powerrules.providers.window import WindowProvider
 
 
 class PowerRulesRuntime:
@@ -99,6 +101,8 @@ class PowerRulesRuntime:
             clock_provider=providers.clock,
             # Information about running processes
             process_provider=providers.process,
+            # Information about windows (not the OS :D)
+            window_provider=providers.window,
             # Basically an API to interact with the power state of the OS
             power_provider=providers.power,
         ).build(configuration)
@@ -112,6 +116,7 @@ class PlatformProviders:
 
     clock: ClockProvider
     process: ProcessProvider
+    window: WindowProvider
     power: PowerProvider
 
 
@@ -130,6 +135,7 @@ def get_platform_providers() -> PlatformProviders:
         return PlatformProviders(
             clock=SystemClockProvider(),
             process=PsUtilProcessProvider(),
+            window=PyWinCtlWindowProvider(),
             power=WindowsPowerProvider(),
         )
 
@@ -137,6 +143,7 @@ def get_platform_providers() -> PlatformProviders:
         return PlatformProviders(
             clock=SystemClockProvider(),
             process=PsUtilProcessProvider(),
+            window=PyWinCtlWindowProvider(),
             power=LinuxPowerProvider(),
         )
 
@@ -145,6 +152,7 @@ def get_platform_providers() -> PlatformProviders:
         return PlatformProviders(
             clock=SystemClockProvider(),
             process=PsUtilProcessProvider(),
+            window=PyWinCtlWindowProvider(),
             power=MacOSPowerProvider(),
         )
 

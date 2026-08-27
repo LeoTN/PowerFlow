@@ -42,6 +42,9 @@ rules:
         - process:
             name: "backup.exe"
             running: false
+        - window:
+            title: "Backup Completed"
+            exists: true
         - datetime:
             between:
               start: "23"
@@ -110,6 +113,7 @@ pwru policy run --policy my-policy.yaml
 * [PyYAML](https://github.com/yaml/pyyaml) → YAML policy parsing
 * [Typer](https://github.com/fastapi/typer) → command-line interface
 * [psutil](https://github.com/giampaolo/psutil) → process information
+* [PyWinCtl](https://github.com/Kalmat/PyWinCtl) → window information
 * [Inkscape](https://inkscape.org) → program used to design the logo
 
 *This repository is licensed under the [MIT License](https://github.com/LeoTN/PowerRules/blob/main/LICENSE).*

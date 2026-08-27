@@ -78,6 +78,15 @@ class DateTimeConditionConfiguration(BaseModel):
         return self
 
 
+class WindowConditionConfiguration(BaseModel):
+    """Configuration for a window condition."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    title: str
+    exists: StrictBool
+
+
 class ConditionConfiguration(BaseModel):
     """Configuration for a condition tree."""
 
@@ -103,6 +112,7 @@ class ConditionConfiguration(BaseModel):
     )
     process: ProcessConditionConfiguration | None = None
     datetime: DateTimeConditionConfiguration | None = None
+    window: WindowConditionConfiguration | None = None
 
     @model_validator(mode="after")
     def validate_variant(self) -> "ConditionConfiguration":
@@ -114,12 +124,13 @@ class ConditionConfiguration(BaseModel):
                 self.not_condition,
                 self.process,
                 self.datetime,
+                self.window,
             )
         )
 
         if configured_variants != 1:
             raise ValueError(
-                "A condition must define exactly one of 'and', 'or', 'not', 'process', or 'datetime'"
+                "A condition must define exactly one of 'and', 'or', 'not', 'process', 'datetime' or 'window'"
             )
 
         if self.and_conditions is not None and len(self.and_conditions) < 2:

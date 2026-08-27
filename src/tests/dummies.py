@@ -52,7 +52,7 @@ class Dummy_ClockProvider:
         return self.given_time
 
 
-# Dummy process prover which returns its predetermined result. If an exception is given, it will be raised
+# Dummy process provider which returns its predetermined result. If an exception is given, it will be raised
 class Dummy_ProcessProvider:
     def __init__(
         self, given_is_running: bool, given_exception: Exception | None = None
@@ -103,6 +103,24 @@ class Dummy_PowerProvider:
 
         if self.given_exception is not None:
             raise self.given_exception
+
+
+# Dummy window provider which returns its predetermined result. If an exception is given, it will be raised
+class Dummy_WindowProvider:
+    def __init__(
+        self, given_window_exists: bool, given_exception: Exception | None = None
+    ):
+        self.given_window_exists = given_window_exists
+        self.given_exception = given_exception
+
+    def window_exists(self, window_title: str) -> bool:
+        # Save the process name for evaluation in tests
+        self.given_window_title = window_title
+
+        if self.given_exception is not None:
+            raise self.given_exception
+
+        return self.given_window_exists
 
 
 #####################

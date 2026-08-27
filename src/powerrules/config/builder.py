@@ -9,6 +9,7 @@ from powerrules.conditions.base import Condition
 from powerrules.conditions.datetime import DateTimeCondition, TimeRange
 from powerrules.conditions.operators import AndCondition, NotCondition, OrCondition
 from powerrules.conditions.process import ProcessCondition
+from powerrules.conditions.window import WindowCondition
 from powerrules.config.models import (
     ActionConfiguration,
     ConditionConfiguration,
@@ -16,12 +17,14 @@ from powerrules.config.models import (
     ProcessConditionConfiguration,
     RuleConfiguration,
     RuleSetConfiguration,
+    WindowConditionConfiguration,
 )
 from powerrules.engine.exceptions import ConfigurationError
 from powerrules.engine.models import Rule, RuleSet
 from powerrules.providers.clock import ClockProvider
 from powerrules.providers.power import PowerProvider
 from powerrules.providers.process import ProcessProvider
+from powerrules.providers.window import WindowProvider
 
 
 class ConfigurationBuilder:
@@ -30,10 +33,12 @@ class ConfigurationBuilder:
         clock_provider: ClockProvider,
         process_provider: ProcessProvider,
         power_provider: PowerProvider,
+        window_provider: WindowProvider,
     ):
         self.clock_provider = clock_provider
         self.process_provider = process_provider
         self.power_provider = power_provider
+        self.window_provider = window_provider
 
     def build(self, configuration: RuleSetConfiguration) -> RuleSet:
         """Build a rule set from the validated configuration. This allows the rule engine to process the rules.
@@ -108,6 +113,9 @@ class ConfigurationBuilder:
         if condition_configuration.datetime is not None:
             return self._build_datetime_condition(condition_configuration.datetime)
 
+        if condition_configuration.window is not None:
+            return self._build_window_condition(condition_configuration.window)
+
         raise ConfigurationError("Condition configuration does not contain a condition")
 
     def _build_process_condition(
@@ -156,6 +164,23 @@ class ConfigurationBuilder:
             )
 
         raise RuntimeError("Invalid datetime condition configuration")
+
+    def _build_window_condition(
+        self, configuration: WindowConditionConfiguration
+    ) -> WindowCondition:
+        """Build a window condition from its configuration.
+
+        Args:
+            configuration: Window condition configuration.
+
+        Returns:
+            The executable window condition.
+        """
+        return WindowCondition(
+            window_title=configuration.title,
+            expected_exists=configuration.exists,
+            window_provider=self.window_provider,
+        )
 
     def _build_action(self, configuration: ActionConfiguration) -> Action:
         """Build an action from its configuration.
