@@ -42,6 +42,9 @@ rules:
         - process:
             name: "backup.exe"
             running: false
+        - window:
+            title: "Backup Completed"
+            exists: true
         - datetime:
             between:
               start: "23"
@@ -89,6 +92,7 @@ pwru policy run --policy my-policy.yaml
 | **Rule-based power management** | Define ordered rules with conditions and power actions |
 | **Process conditions** | Match rules based on whether a process is running |
 | **Time conditions** | Match time ranges and weekdays |
+| **Window conditions** | Match window titles |
 | **Logical conditions** | Combine conditions using `and`, `or`, and `not` |
 | **Power actions** | Shutdown, sleep, hibernate, and reboot |
 | **Continuous evaluation** | Evaluate policies repeatedly |
@@ -99,8 +103,10 @@ pwru policy run --policy my-policy.yaml
 | Platform | Status |
 |----------|:------:|
 | Windows 10/11 | ✅ |
-| Linux | Planned |
-| macOS | Planned |
+| Linux | ✅ |
+| macOS* | ✅ |
+
+\* Hibernation is not supported on macOS.
 
 ## Credits & License
 
@@ -108,6 +114,7 @@ pwru policy run --policy my-policy.yaml
 * [PyYAML](https://github.com/yaml/pyyaml) → YAML policy parsing
 * [Typer](https://github.com/fastapi/typer) → command-line interface
 * [psutil](https://github.com/giampaolo/psutil) → process information
+* [PyWinCtl](https://github.com/Kalmat/PyWinCtl) → window information
 * [Inkscape](https://inkscape.org) → program used to design the logo
 
 *This repository is licensed under the [MIT License](https://github.com/LeoTN/PowerRules/blob/main/LICENSE).*

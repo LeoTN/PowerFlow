@@ -1,13 +1,22 @@
+import platform
 import time
+from dataclasses import dataclass
 from pathlib import Path
 
 from powerrules.config.builder import ConfigurationBuilder
 from powerrules.config.loader import ConfigurationLoader
 from powerrules.engine.models import Rule, RuleEvaluationResult
 from powerrules.engine.rule_engine import RuleEngine
+from powerrules.platform.clock import SystemClockProvider
+from powerrules.platform.linux.power import LinuxPowerProvider
+from powerrules.platform.macos.power import MacOSPowerProvider
+from powerrules.platform.process import PsUtilProcessProvider
+from powerrules.platform.window import PyWinCtlWindowProvider
 from powerrules.platform.windows.power import WindowsPowerProvider
-from powerrules.platform.windows.process import WindowsProcessProvider
-from powerrules.providers.clock import SystemClockProvider
+from powerrules.providers.clock import ClockProvider
+from powerrules.providers.power import PowerProvider
+from powerrules.providers.process import ProcessProvider
+from powerrules.providers.window import WindowProvider
 
 
 class PowerRulesRuntime:
@@ -84,17 +93,67 @@ class PowerRulesRuntime:
         """
         configuration = ConfigurationLoader().load(configuration_path)
 
-        clock_provider = SystemClockProvider()
-        process_provider = WindowsProcessProvider()
-        power_provider = WindowsPowerProvider()
+        # Fetch the correct providers for the current platform / OS
+        providers = get_platform_providers()
 
         rule_set = ConfigurationBuilder(
             # Information about the current date and time
-            clock_provider=clock_provider,
+            clock_provider=providers.clock,
             # Information about running processes
-            process_provider=process_provider,
+            process_provider=providers.process,
+            # Information about windows (not the OS :D)
+            window_provider=providers.window,
             # Basically an API to interact with the power state of the OS
-            power_provider=power_provider,
+            power_provider=providers.power,
         ).build(configuration)
 
         return RuleEngine(rule_set.rules)
+
+
+@dataclass(frozen=True)
+class PlatformProviders:
+    """Provide platform-specific system providers."""
+
+    clock: ClockProvider
+    process: ProcessProvider
+    window: WindowProvider
+    power: PowerProvider
+
+
+def get_platform_providers() -> PlatformProviders:
+    """Creates providers for interacting with the current operating system.
+
+    Returns:
+        Providers for the current platform.
+
+    Raises:
+        RuntimeError: If the current operating system is unsupported.
+    """
+    system_name = platform.system()
+
+    if system_name == "Windows":
+        return PlatformProviders(
+            clock=SystemClockProvider(),
+            process=PsUtilProcessProvider(),
+            window=PyWinCtlWindowProvider(),
+            power=WindowsPowerProvider(),
+        )
+
+    if system_name == "Linux":
+        return PlatformProviders(
+            clock=SystemClockProvider(),
+            process=PsUtilProcessProvider(),
+            window=PyWinCtlWindowProvider(),
+            power=LinuxPowerProvider(),
+        )
+
+    # MacOS
+    if system_name == "Darwin":
+        return PlatformProviders(
+            clock=SystemClockProvider(),
+            process=PsUtilProcessProvider(),
+            window=PyWinCtlWindowProvider(),
+            power=MacOSPowerProvider(),
+        )
+
+    raise RuntimeError(f"Unsupported operating system: {system_name}")

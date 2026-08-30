@@ -102,6 +102,7 @@ def run(
     runtime = PowerRulesRuntime()
 
     if once:
+        typer.echo(f"[INFO] Running policy '{policy}' once...")
         result = runtime.run_once(configuration_path=policy)
 
         if result.matched_rule is None:
@@ -111,4 +112,5 @@ def run(
 
         return
 
+    typer.echo(f"[INFO] Running policy '{policy}' continuously...")
     runtime.run_continuously(configuration_path=policy, stop_on_match=stop_on_match)

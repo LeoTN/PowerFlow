@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from powerrules.providers.clock import SystemClockProvider
+from powerrules.platform.clock import SystemClockProvider
 
 
 def test_system_clock_provider_returns_datetime() -> None:

@@ -1,16 +1,7 @@
 from datetime import datetime, time
 
 from powerrules.conditions.datetime import DateTimeCondition, TimeRange, Weekday
-
-
-# Dummy clock which returns the given time
-class Dummy_ClockProvider:
-    def __init__(self, current_time: datetime):
-        self.current_time = current_time
-
-    def now(self) -> datetime:
-        return self.current_time
-
+from tests.dummies import Dummy_ClockProvider
 
 #################
 # TimeRange tests
@@ -62,15 +53,6 @@ def test_time_range_excludes_end_time() -> None:
     assert time_range.contains(time(18, 0)) is False
 
 
-def test_time_range_matches_time_after_midnight_when_crossing_midnight() -> None:
-    time_range = TimeRange(
-        start=time(22, 0),
-        end=time(6, 0),
-    )
-
-    assert time_range.contains(time(2, 0)) is True
-
-
 def test_time_range_matches_time_before_midnight_when_crossing_midnight() -> None:
     time_range = TimeRange(
         start=time(22, 0),
@@ -78,6 +60,15 @@ def test_time_range_matches_time_before_midnight_when_crossing_midnight() -> Non
     )
 
     assert time_range.contains(time(23, 0)) is True
+
+
+def test_time_range_matches_time_after_midnight_when_crossing_midnight() -> None:
+    time_range = TimeRange(
+        start=time(22, 0),
+        end=time(6, 0),
+    )
+
+    assert time_range.contains(time(2, 0)) is True
 
 
 def test_time_range_does_not_match_time_outside_midnight_range() -> None:

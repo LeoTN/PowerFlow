@@ -2,40 +2,11 @@ import pytest
 
 from powerrules.engine.exceptions import ActionExecutionError, ConditionEvaluationError
 from powerrules.engine.rule_engine import Rule, RuleEngine
-
-
-# This condition keeps track of its evaluation count
-class Dummy_Condition:
-    def __init__(self, result: bool):
-        self.result = result
-        self.evaluation_count = 0
-
-    def evaluate(self) -> bool:
-        self.evaluation_count += 1
-        return self.result
-
-
-# This action keeps track of its execution count
-class Dummy_Action:
-    def __init__(self):
-        self.execution_count = 0
-
-    def execute(self) -> None:
-        self.execution_count += 1
-
-
-class Dummy_FailingCondition:
-    def evaluate(self) -> bool:
-        raise ConditionEvaluationError("Test condition failed")
-
-
-class Dummy_FailingAction:
-    def execute(self) -> None:
-        raise ActionExecutionError("Test action failed")
+from tests.dummies import Dummy_Action, Dummy_Condition
 
 
 def test_rule_engine_executes_action_when_condition_matches() -> None:
-    condition = Dummy_Condition(True)
+    condition = Dummy_Condition(given_result=True)
     action = Dummy_Action()
 
     rule = Rule(
@@ -52,7 +23,7 @@ def test_rule_engine_executes_action_when_condition_matches() -> None:
 
 
 def test_rule_engine_skips_non_matching_rule() -> None:
-    condition = Dummy_Condition(False)
+    condition = Dummy_Condition(given_result=False)
     action = Dummy_Action()
 
     rule = Rule(
@@ -69,10 +40,10 @@ def test_rule_engine_skips_non_matching_rule() -> None:
 
 
 def test_rule_engine_evaluates_rules_from_top_to_bottom() -> None:
-    first_condition = Dummy_Condition(False)
+    first_condition = Dummy_Condition(given_result=False)
     first_action = Dummy_Action()
 
-    second_condition = Dummy_Condition(True)
+    second_condition = Dummy_Condition(given_result=True)
     second_action = Dummy_Action()
 
     rules = (
@@ -98,10 +69,10 @@ def test_rule_engine_evaluates_rules_from_top_to_bottom() -> None:
 
 
 def test_rule_engine_stops_after_first_matching_rule() -> None:
-    first_condition = Dummy_Condition(True)
+    first_condition = Dummy_Condition(given_result=True)
     first_action = Dummy_Action()
 
-    second_condition = Dummy_Condition(True)
+    second_condition = Dummy_Condition(given_result=True)
     second_action = Dummy_Action()
 
     rules = (
@@ -127,7 +98,7 @@ def test_rule_engine_stops_after_first_matching_rule() -> None:
 
 
 def test_rule_engine_skips_disabled_rules() -> None:
-    condition = Dummy_Condition(True)
+    condition = Dummy_Condition(given_result=True)
     action = Dummy_Action()
 
     rule = Rule(
@@ -145,10 +116,10 @@ def test_rule_engine_skips_disabled_rules() -> None:
 
 
 def test_rule_engine_returns_no_match_when_no_rule_matches() -> None:
-    first_condition = Dummy_Condition(False)
+    first_condition = Dummy_Condition(given_result=False)
     first_action = Dummy_Action()
 
-    second_condition = Dummy_Condition(False)
+    second_condition = Dummy_Condition(given_result=False)
     second_action = Dummy_Action()
 
     rules = (
@@ -188,7 +159,10 @@ def test_rule_engine_propagates_condition_evaluation_error() -> None:
 
     rule = Rule(
         name="Failing test rule",
-        condition=Dummy_FailingCondition(),
+        condition=Dummy_Condition(
+            given_result=True,
+            given_exception=ConditionEvaluationError("Test condition failed"),
+        ),
         action=action,
     )
 
@@ -201,11 +175,14 @@ def test_rule_engine_propagates_condition_evaluation_error() -> None:
 def test_rule_engine_stops_after_condition_evaluation_error() -> None:
     first_rule = Rule(
         name="Failing test rule",
-        condition=Dummy_FailingCondition(),
+        condition=Dummy_Condition(
+            given_result=True,
+            given_exception=ConditionEvaluationError("Test condition failed"),
+        ),
         action=Dummy_Action(),
     )
 
-    second_condition = Dummy_Condition(True)
+    second_condition = Dummy_Condition(given_result=True)
     second_action = Dummy_Action()
 
     second_rule = Rule(
@@ -222,12 +199,12 @@ def test_rule_engine_stops_after_condition_evaluation_error() -> None:
 
 
 def test_rule_engine_propagates_action_execution_error() -> None:
-    condition = Dummy_Condition(True)
+    condition = Dummy_Condition(given_result=True)
 
     rule = Rule(
         name="Failing test rule",
         condition=condition,
-        action=Dummy_FailingAction(),
+        action=Dummy_Action(given_exception=ActionExecutionError("Test action failed")),
     )
 
     with pytest.raises(ActionExecutionError, match="Test action failed"):
@@ -237,11 +214,11 @@ def test_rule_engine_propagates_action_execution_error() -> None:
 def test_rule_engine_stops_after_action_execution_error() -> None:
     first_rule = Rule(
         name="Failing test rule",
-        condition=Dummy_Condition(True),
-        action=Dummy_FailingAction(),
+        condition=Dummy_Condition(given_result=True),
+        action=Dummy_Action(given_exception=ActionExecutionError("Test action failed")),
     )
 
-    second_condition = Dummy_Condition(True)
+    second_condition = Dummy_Condition(given_result=True)
     second_action = Dummy_Action()
 
     second_rule = Rule(
@@ -258,7 +235,7 @@ def test_rule_engine_stops_after_action_execution_error() -> None:
 
 
 def test_rule_engine_find_match_returns_matching_rule() -> None:
-    condition = Dummy_Condition(True)
+    condition = Dummy_Condition(given_result=True)
     action = Dummy_Action()
 
     rule = Rule(
@@ -277,7 +254,7 @@ def test_rule_engine_find_match_returns_matching_rule() -> None:
 def test_rule_engine_find_match_returns_none_when_no_rule_matches() -> None:
     rule = Rule(
         name="Test rule",
-        condition=Dummy_Condition(False),
+        condition=Dummy_Condition(given_result=False),
         action=Dummy_Action(),
     )
 
@@ -289,13 +266,13 @@ def test_rule_engine_find_match_returns_none_when_no_rule_matches() -> None:
 def test_rule_engine_find_match_returns_first_matching_rule() -> None:
     first_rule = Rule(
         name="First rule",
-        condition=Dummy_Condition(True),
+        condition=Dummy_Condition(given_result=True),
         action=Dummy_Action(),
     )
 
     second_rule = Rule(
         name="Second rule",
-        condition=Dummy_Condition(True),
+        condition=Dummy_Condition(given_result=True),
         action=Dummy_Action(),
     )
 

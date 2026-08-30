@@ -6,42 +6,12 @@ from powerrules.config.builder import ConfigurationBuilder
 from powerrules.config.loader import ConfigurationLoader
 from powerrules.engine.models import Rule
 from powerrules.engine.rule_engine import RuleEngine
-
-
-class Dummy_ClockProvider:
-    def __init__(self, current_datetime: datetime):
-        self.current_datetime = current_datetime
-
-    def now(self) -> datetime:
-        return self.current_datetime
-
-
-class Dummy_ProcessProvider:
-    def __init__(self, is_running: bool = False):
-        self.is_running_result = is_running
-
-    def is_running(self, process_name: str) -> bool:
-        return self.is_running_result
-
-
-class Dummy_PowerProvider:
-    def __init__(self):
-        self.shutdown_count = 0
-        self.sleep_count = 0
-        self.hibernate_count = 0
-        self.reboot_count = 0
-
-    def shutdown(self) -> None:
-        self.shutdown_count += 1
-
-    def sleep(self) -> None:
-        self.sleep_count += 1
-
-    def hibernate(self) -> None:
-        self.hibernate_count += 1
-
-    def reboot(self) -> None:
-        self.reboot_count += 1
+from tests.dummies import (
+    Dummy_ClockProvider,
+    Dummy_PowerProvider,
+    Dummy_ProcessProvider,
+    Dummy_WindowProvider,
+)
 
 
 def test_rule_execution_from_yaml_configuration(tmp_path: Path) -> None:
@@ -66,7 +36,10 @@ rules:
     )
 
     clock_provider = Dummy_ClockProvider(datetime(2026, 8, 22, 1, 30))
-    process_provider = Dummy_ProcessProvider(is_running=False)
+    process_provider = Dummy_ProcessProvider(given_is_running=False)
+    window_provider = Dummy_WindowProvider(
+        given_window_exists=True, given_is_available=True
+    )
     power_provider = Dummy_PowerProvider()
 
     configuration = ConfigurationLoader().load(configuration_file)
@@ -74,6 +47,7 @@ rules:
     rule_set = ConfigurationBuilder(
         clock_provider=clock_provider,
         process_provider=process_provider,
+        window_provider=window_provider,
         power_provider=power_provider,
     ).build(configuration)
 
@@ -110,7 +84,10 @@ rules:
     )
 
     clock_provider = Dummy_ClockProvider(datetime(2026, 8, 22, 22, 30))
-    process_provider = Dummy_ProcessProvider(is_running=False)
+    process_provider = Dummy_ProcessProvider(given_is_running=False)
+    window_provider = Dummy_WindowProvider(
+        given_window_exists=True, given_is_available=True
+    )
     power_provider = Dummy_PowerProvider()
 
     configuration = ConfigurationLoader().load(configuration_file)
@@ -118,6 +95,7 @@ rules:
     rule_set = ConfigurationBuilder(
         clock_provider=clock_provider,
         process_provider=process_provider,
+        window_provider=window_provider,
         power_provider=power_provider,
     ).build(configuration)
 
@@ -154,13 +132,18 @@ rules:
     )
 
     clock_provider = Dummy_ClockProvider(datetime(2026, 8, 22, 23, 30))
+    process_provider = Dummy_ProcessProvider(given_is_running=True)
+    window_provider = Dummy_WindowProvider(
+        given_window_exists=True, given_is_available=True
+    )
     power_provider = Dummy_PowerProvider()
 
     configuration = ConfigurationLoader().load(configuration_file)
 
     rule_set = ConfigurationBuilder(
         clock_provider=clock_provider,
-        process_provider=Dummy_ProcessProvider(),
+        process_provider=process_provider,
+        window_provider=window_provider,
         power_provider=power_provider,
     ).build(configuration)
 

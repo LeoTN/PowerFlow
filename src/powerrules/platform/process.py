@@ -1,8 +1,9 @@
 import psutil
 
 
-class WindowsProcessProvider:
-    """Provide process information on Windows."""
+# psutil already makes everything platform independent
+class PsUtilProcessProvider:
+    """Provide process information on Windows, Linux and macOS."""
 
     def is_running(self, process_name: str) -> bool:
         """Return whether a process with the given name is running.

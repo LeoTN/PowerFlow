@@ -1,6 +1,6 @@
 import pytest
 import typer
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 from powerrules.cli.errors import (
     EXIT_POLICY_ERROR,
@@ -9,10 +9,7 @@ from powerrules.cli.errors import (
     handle_cli_error,
 )
 from powerrules.engine.exceptions import ConditionEvaluationError
-
-
-class Dummy_Model(BaseModel):
-    enabled: bool
+from tests.dummies import Dummy_Model
 
 
 def test_cli_error_handler_handles_missing_policy() -> None:
