@@ -37,7 +37,9 @@ rules:
 
     clock_provider = Dummy_ClockProvider(datetime(2026, 8, 22, 1, 30))
     process_provider = Dummy_ProcessProvider(given_is_running=False)
-    window_provider = Dummy_WindowProvider(given_window_exists=True)
+    window_provider = Dummy_WindowProvider(
+        given_window_exists=True, given_is_available=True
+    )
     power_provider = Dummy_PowerProvider()
 
     configuration = ConfigurationLoader().load(configuration_file)
@@ -83,7 +85,9 @@ rules:
 
     clock_provider = Dummy_ClockProvider(datetime(2026, 8, 22, 22, 30))
     process_provider = Dummy_ProcessProvider(given_is_running=False)
-    window_provider = Dummy_WindowProvider(given_window_exists=True)
+    window_provider = Dummy_WindowProvider(
+        given_window_exists=True, given_is_available=True
+    )
     power_provider = Dummy_PowerProvider()
 
     configuration = ConfigurationLoader().load(configuration_file)
@@ -129,7 +133,9 @@ rules:
 
     clock_provider = Dummy_ClockProvider(datetime(2026, 8, 22, 23, 30))
     process_provider = Dummy_ProcessProvider(given_is_running=True)
-    window_provider = Dummy_WindowProvider(given_window_exists=True)
+    window_provider = Dummy_WindowProvider(
+        given_window_exists=True, given_is_available=True
+    )
     power_provider = Dummy_PowerProvider()
 
     configuration = ConfigurationLoader().load(configuration_file)

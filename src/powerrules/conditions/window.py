@@ -1,4 +1,7 @@
-from powerrules.engine.exceptions import ConditionEvaluationError
+from powerrules.engine.exceptions import (
+    ConditionEvaluationError,
+    ConditionEvaluationProviderNotAvailableError,
+)
 from powerrules.providers.window import WindowProvider
 
 
@@ -22,12 +25,18 @@ class WindowCondition:
 
         Raises:
             ConditionEvaluationError: If the window state cannot be determined.
+            ConditionEvaluationProviderNotAvailableError: If the window provider is not available on the current platform.
         """
+        if not self.window_provider.is_available:
+            raise ConditionEvaluationProviderNotAvailableError(
+                f"Window provider is not available, cannot evaluate window condition for '{self.window_title}'"
+            )
+
         try:
             window_exists = self.window_provider.window_exists(self.window_title)
         except Exception as e:
             raise ConditionEvaluationError(
-                f"Failed to determine whether window '{self.window_title}' exists."
+                f"Failed to determine whether window '{self.window_title}' exists"
             ) from e
 
         return window_exists == self.expected_exists
