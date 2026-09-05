@@ -133,6 +133,9 @@
                 "running": {
                     "type": "boolean",
                     "description": "Whether the process is expected to be running."
+                },
+                "match": {
+                    "$ref": "#/$defs/match"
                 }
             }
         },
@@ -206,12 +209,36 @@
             "properties": {
                 "title": {
                     "type": "string",
-                    "description": "Exact title of the window."
+                    "description": "Title of the window."
                 },
                 "exists": {
                     "type": "boolean",
                     "default": true,
                     "description": "Whether the window is expected to exist."
+                },
+                "match": {
+                    "$ref": "#/$defs/match"
+                }
+            }
+        },
+        "match": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Defines how the value should be matched against the target. By default, an exact, case-sensitive match is used.",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "exact",
+                        "regex"
+                    ],
+                    "default": "exact",
+                    "description": "Whether the match should be exact or regex-based."
+                },
+                "case_sensitive": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether the match should be case-sensitive."
                 }
             }
         },

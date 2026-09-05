@@ -94,6 +94,7 @@ pwru policy run --policy my-policy.yaml
 | **Time conditions** | Match time ranges and weekdays |
 | **Window conditions** | Match window titles |
 | **Logical conditions** | Combine conditions using `and`, `or`, and `not` |
+| **Matching behavior** | How a value (process name, window title, etc.) should be matched. By default, an exact, case-sensitive match is used. |
 | **Power actions** | Shutdown, sleep, hibernate, and reboot |
 | **Continuous evaluation** | Evaluate policies repeatedly |
 | **First-match execution** | Only the first matching rule executes once per match |
